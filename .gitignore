@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# uv / pip
+.venv/
+*.egg-info/
+
+# marimo
+__marimo__/
+marimo/_static/
+marimo/_lsp/
+
+# direnv / Nix
+.direnv/
+.envrc.local
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local cache
+.cache/
+~/.cache/prx/
+
+# Third-party skills (installed via npx skills add)
+.claude/skills/marimo-pair/
+
+# Misc
+*.bak
