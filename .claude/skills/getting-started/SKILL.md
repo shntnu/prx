@@ -45,10 +45,12 @@ The first installs `marimo-notebook` (authoring guidance for `@app.cell`
 patterns, reactivity, anywidget, etc.); the second installs `marimo-pair`
 (bundled `scripts/` for executing code against a running kernel).
 
-After install, the user should restart their Claude Code session so the
-skills load. On the next session, marimo-pair's tools (e.g. running
-`scripts/execute-code.sh`) are available via its `allowed-tools`
-frontmatter. If you don't see the skills, they aren't loaded yet.
+Skills installed globally via `-g` usually register live - you can
+proceed without restarting the session. If a later step reports the
+skill missing (e.g. marimo-pair's `scripts/execute-code.sh` not in
+the allowed tools), have the user restart Claude Code and re-run
+`/getting-started`; it'll skip ahead since the prior steps are
+idempotent.
 
 ### 3. Launch the marimo server
 
@@ -91,6 +93,12 @@ Once the kernel is live and marimo-pair is connected:
   opening any notebook then fails with `ModuleNotFoundError`.
 - **Ports 2718-2720 are often taken** on shared machines. The step-3
   picker grabs a random free port. Don't hardcode.
+- **Sandbox locks one notebook per kernel.** Each `marimo edit --sandbox
+  <file>` provisions a venv from that file's PEP 723 header only. To
+  run a different notebook (e.g. nb02 alongside nb01), launch a second
+  server on a fresh port - don't try to switch files in a running
+  sandbox kernel. Track the port-per-notebook (e.g. write to
+  `/tmp/prx_port_nbNN.txt`) so you can address each one later.
 
 ## Don't
 
