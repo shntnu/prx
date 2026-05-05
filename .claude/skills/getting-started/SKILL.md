@@ -6,9 +6,10 @@ description: >-
   started", "onboard me", "set me up", "I'm new to prx", "first time using
   prx", "what do I do next", or asks any PROSPECT-composition question
   before a marimo kernel is running and marimo-pair is connected. Sets up
-  uv, prompts the user to install the marimo-pair skill, launches the
-  marimo server on nb01_orientation. Use before compose-notebook: once
-  setup is verified, hand off to that skill for the actual analysis.
+  uv, prompts the user to install the marimo-notebook and marimo-pair
+  skills, launches the marimo server on nb01_orientation. Use before
+  compose-notebook: once setup is verified, hand off to that skill for
+  the actual analysis.
 ---
 
 # Getting started with prx
@@ -30,18 +31,24 @@ terminal. Re-check `uv --version`.
 (Nix users with `direnv allow`-ed in this repo get `uv` from the flake;
 no separate install needed.)
 
-### 2. Install the marimo-pair skill
+### 2. Install the marimo-notebook and marimo-pair skills
 
-marimo-pair is a self-contained skill (SKILL.md + bundled `scripts/`)
-distributed via [skills.sh](https://skills.sh). Install it globally for
-the user:
+Both are upstream skills from `marimo-team`, distributed via
+[skills.sh](https://skills.sh). Neither is vendored in this repo
+(both are gitignored under `.claude/skills/`); install them globally
+for the user:
 
+    npx skills add marimo-team/skills -g --agent claude-code -y
     npx skills add marimo-team/marimo-pair -g --agent claude-code -y
 
+The first installs `marimo-notebook` (authoring guidance for `@app.cell`
+patterns, reactivity, anywidget, etc.); the second installs `marimo-pair`
+(bundled `scripts/` for executing code against a running kernel).
+
 After install, the user should restart their Claude Code session so the
-skill loads. On the next session, marimo-pair's tools (e.g. running
+skills load. On the next session, marimo-pair's tools (e.g. running
 `scripts/execute-code.sh`) are available via its `allowed-tools`
-frontmatter. If you don't see the skill, it isn't loaded yet.
+frontmatter. If you don't see the skills, they aren't loaded yet.
 
 ### 3. Launch the marimo server
 
@@ -89,9 +96,9 @@ Once the kernel is live and marimo-pair is connected:
 
 - Don't write PROSPECT analysis code before setup is verified - you'll
   burn the user's time debugging import errors and missing deps.
-- Don't vendor marimo-pair into this repo. It's upstream at
-  `marimo-team/marimo-pair`; installing via `npx skills add` keeps
-  users current with fixes.
+- Don't vendor `marimo-notebook` or `marimo-pair` into this repo.
+  They're upstream at `marimo-team/skills` and `marimo-team/marimo-pair`;
+  installing via `npx skills add` keeps users current with fixes.
 - Don't bypass `compose-notebook` after setup completes. The whole
   point is composition from the catalog; writing ad-hoc queries
   defeats the skill's purpose.

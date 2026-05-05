@@ -28,6 +28,7 @@ marimo/_lsp/
 
 # Third-party skills (installed via npx skills add)
 .claude/skills/marimo-pair/
+.claude/skills/marimo-notebook/
 
 # Misc
 *.bak
