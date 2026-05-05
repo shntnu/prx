@@ -213,3 +213,20 @@ def load_sgr() -> pl.DataFrame:
   a higher PCL similarity score means "more like a member of this class"
   - sort descending. Always sanity-check the sign before drawing
   conclusions; don't trust column names blindly.
+- **`ctx.packages.add()` after a cell already failed: restart the kernel.**
+  When a sandbox cell raises on a missing import (e.g. `pooch` complaining
+  about `tqdm`), calling `ctx.packages.add("tqdm")` from marimo-pair
+  installs the wheel into the venv *and* edits the notebook's PEP 723
+  header - both durable. But the running Python process has already
+  cached the import miss in `sys.modules` (or in the offending library's
+  internal lazy-import shim), so re-running the cell raises the same
+  error. Kill the `marimo edit --sandbox` server and relaunch on a fresh
+  port; the new kernel imports cleanly because the header now has the
+  dep. Use `ctx.packages.add()` *prophylactically* (before the first
+  run) and you can skip the restart.
+- **Snapshot `ctx.cells` before bulk run/mutate loops.** Iterating
+  `for cid in ctx.cells: ctx.run_cell(cid)` raises `RuntimeError:
+  dictionary changed size during iteration` because the reactive runtime
+  mutates `ctx.cells` while running. Use
+  `for cid in list(ctx.cells.keys()): ctx.run_cell(cid)`. Same applies
+  to any loop that creates, deletes, or runs cells - snapshot first.
