@@ -26,6 +26,9 @@ marimo/_lsp/
 .cache/
 ~/.cache/prx/
 
+# Notebook-fetched data (pooch caches, derived tables, etc.)
+data/
+
 # Third-party skills (installed via npx skills add)
 .claude/skills/marimo-pair/
 .claude/skills/marimo-notebook/
