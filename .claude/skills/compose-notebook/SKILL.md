@@ -47,6 +47,7 @@ exposes a stable helper.
 | `nb01_orientation` | (no helpers; markdown landing page) | Working questions, foundational papers, public data resources, first concrete next steps. Read first. |
 | `nb02_figshare_pull` | `figshare_url(file_id)`, `fetch(slug, files, known_hashes)`; globals `FIGSHARE_DIR`, `SMALL_FILES`, `KNOWN_HASHES`, `EXTRACTED_DIRS`, `clusters_tbl` (8,317 x 25), `moas_long` (11,081 x 2 across 71 MOAs), `pcls_long` (5,847 x 2 across 1,140 PCL clusters); `parse_gmt(path)` for .gmt-style files | Pulls Bond et al. 2025 Figshare bundle (the small annotation/cluster archives only - big similarity matrices deferred). Provides the *reference-set spine*: every condition (`<screen-wave>:<broad_id>:<concentration>uM`) joined to its MOA and PCL cluster. SHA-256 pinned in `KNOWN_HASHES`. |
 | `nb03_hypomorph_correlation` | `fetch_sgr_archive() -> Path`, `parse_gct(path) -> (matrix np.float32, row_meta pl.DataFrame, col_meta pl.DataFrame)`, `strain_correlation(matrix) -> np.ndarray`; globals `SGR_FILE_ID`, `SGR_ARCHIVE_HASH`, `SGR_GCT_NAME` | Pulls `sGR_for_pcls` (309 MB, 9,427 conditions x 340 strains) from the Bond 2025 Figshare bundle, parses the GCT v1.3 directly, computes the 340 x 340 strain x strain Pearson, and surfaces top neighbors per strain. The *strain-axis* view of the same matrix Bond et al. used for PCL clustering on the condition axis. |
+| `nb04_pretrained_baseline` | `fetch_clusters_archive() -> Path`, `per_compound_labels(clusters_tbl) -> pl.DataFrame`, `compound_cgi_profiles(clusters_tbl, sgr_matrix, sgr_col_meta, broad_ids) -> (np.ndarray, list[str])` (median per compound), `compound_condition_features(clusters_tbl, sgr_matrix, sgr_col_meta, broad_ids) -> (np.ndarray, np.ndarray)` (one row per (compound, dose, wave)), `smiles_to_morgan(smiles, radius, nbits) -> (np.ndarray, list[bool])`, `loocv_1nn_predictions(features, moas, metric) -> np.ndarray`, `loocv_per_condition_predictions(features, compound_ids, metric) -> (np.ndarray, np.ndarray)` (best-match across all-of-other-compound's conditions), `score_predictions(predictions, primary_moas, moa_sets) -> dict`, `same_moa_tanimoto_distribution(fps, primary_moas) -> pl.DataFrame`; globals `CLUSTERS_FILE_ID`, `CLUSTERS_ARCHIVE_HASH`, `MORGAN_RADIUS`, `MORGAN_NBITS` | Structure-only baseline vs two CGI baselines (per-dose best-match, and median-aggregated) for MOA classification on the Bond 2025 reference set, all under LOO 1-NN. Companion diagnostic: same-MOA vs cross-MOA Tanimoto distribution over Morgan FPs to surface within-MOA structural redundancy that biases the structure baseline upward. Adds rdkit + scikit-learn to the dep set. |
 
 When the question isn't obviously answered by an existing helper, **read
 the catalog file itself** (not just this table) before inventing new code.
@@ -129,11 +130,15 @@ baseline.
 **Smoke-test the header before launching marimo.** A 5-second `uv run`
 catches dep mistakes against an ad-hoc venv, instead of paying the cost
 of a sandbox provision + a UI install prompt + a kernel restart. Run from
-the repo root, listing every dep in your header *and* exercising the
-runtime path your notebook actually takes:
+the prx repo root, listing every dep in your header *and* exercising the
+runtime path your notebook actually takes. Always pass `--no-project`:
+prx has no `pyproject.toml`, but if the agent's cwd is a sibling repo
+(e.g. `prx-dev`) that does have one, `uv` will try to install that
+sibling project as editable and the smoke-test fails before any of your
+deps are even resolved.
 
 ```bash
-uv run --python 3.13 \
+cd /path/to/prx && uv run --no-project --python 3.13 \
     --with marimo --with polars==1.40.1 --with pooch==1.9.0 \
     --with altair==5.5.0 \
     python3 -c "
@@ -269,8 +274,15 @@ def load_sgr() -> pl.DataFrame:
 4. **Smoke-test the deps** with the `uv run --python 3.13 --with ...`
    one-liner from section 0. Cheaper than a sandbox restart.
 5. **Lint and check:**
-       pixi run ruff check notebooks/nbNN_*.py
-       pixi run marimo check notebooks/nbNN_*.py
+       cd /path/to/prx
+       uvx ruff format --line-length 120 notebooks/nbNN_*.py
+       uvx ruff check --line-length 120 notebooks/nbNN_*.py
+       uv run --no-project --python 3.13 --with marimo marimo check notebooks/nbNN_*.py
+   `marimo check` exits 0 silently on success; non-zero with a list of
+   `critical[multiple-definitions]` errors if you've reused a top-level
+   variable name across cells (see the gotcha below). prx has no pixi
+   env -- earlier versions of this skill said `pixi run ...`; that was
+   wrong.
 6. **Open the new notebook** in the running kernel via marimo-pair (or
    ask the user to navigate to it).
 7. **Add a row to the catalog table** in this SKILL.md describing the new
@@ -280,6 +292,15 @@ def load_sgr() -> pl.DataFrame:
 
 ## Gotchas
 
+- **Top-level variable names must be unique across cells.** Marimo's
+  reactivity model needs a single definition per name in the global
+  namespace; reusing common names like `chart`, `summary`, `df`, `result`
+  across cells fails `marimo check` with a `critical[multiple-definitions]`
+  error. Two fixes: rename the shadowing var (`per_moa_chart`,
+  `redundancy_summary`), or prefix it with an underscore to make it
+  cell-private (`_chart`, `_summary`). Underscore-prefix is the right
+  move for purely-rendering locals; rename when the value is genuinely
+  consumed by a downstream cell.
 - **Don't add cells whose only output is `print(...)`** - marimo only
   renders the final expression; the print goes to the kernel log, not the
   notebook.
