@@ -46,6 +46,7 @@ exposes a stable helper.
 |---|---|---|
 | `nb01_orientation` | (no helpers; markdown landing page) | Working questions, foundational papers, public data resources, first concrete next steps. Read first. |
 | `nb02_figshare_pull` | `figshare_url(file_id)`, `fetch(slug, files, known_hashes)`; globals `FIGSHARE_DIR`, `SMALL_FILES`, `KNOWN_HASHES`, `EXTRACTED_DIRS`, `clusters_tbl` (8,317 x 25), `moas_long` (11,081 x 2 across 71 MOAs), `pcls_long` (5,847 x 2 across 1,140 PCL clusters); `parse_gmt(path)` for .gmt-style files | Pulls Bond et al. 2025 Figshare bundle (the small annotation/cluster archives only - big similarity matrices deferred). Provides the *reference-set spine*: every condition (`<screen-wave>:<broad_id>:<concentration>uM`) joined to its MOA and PCL cluster. SHA-256 pinned in `KNOWN_HASHES`. |
+| `nb03_hypomorph_correlation` | `fetch_sgr_archive() -> Path`, `parse_gct(path) -> (matrix np.float32, row_meta pl.DataFrame, col_meta pl.DataFrame)`, `strain_correlation(matrix) -> np.ndarray`; globals `SGR_FILE_ID`, `SGR_ARCHIVE_HASH`, `SGR_GCT_NAME` | Pulls `sGR_for_pcls` (309 MB, 9,427 conditions x 340 strains) from the Bond 2025 Figshare bundle, parses the GCT v1.3 directly, computes the 340 x 340 strain x strain Pearson, and surfaces top neighbors per strain. The *strain-axis* view of the same matrix Bond et al. used for PCL clustering on the condition axis. |
 
 When the question isn't obviously answered by an existing helper, **read
 the catalog file itself** (not just this table) before inventing new code.
@@ -70,8 +71,84 @@ Concrete next-notebook candidates (Bond et al. 2025 Figshare bundle: <https://do
 
 A composed notebook is a new file in `notebooks/` (e.g.,
 `nb02_figshare_pull.py`) that imports catalog helpers as plain Python and
-glues them together. Three things matter: **imports**, **interactive UI**,
-and **caching**.
+glues them together. Four things matter: the **PEP 723 header**,
+**imports**, **interactive UI**, and **caching**.
+
+### 0. The PEP 723 header - get it right the first time
+
+Sandbox-mode marimo provisions a venv from the PEP 723 header at the top
+of the notebook file *before any cell runs*. If the header is wrong, the
+first sign is an `ImportError` on kernel boot or the first run of a cell.
+Marimo's UI offers to install missing packages, but the sandbox venv is
+locked to one notebook, so you have to click through *and* kill + relaunch
+the server (the failed import is cached in `sys.modules`). Each
+round-trip eats 30-60 seconds of the user's time. Get the header right
+up front and the whole class of failures disappears.
+
+**Two issues hit every notebook in this repo if you don't pin against them:**
+
+- **`requires-python = ">=3.12"` is too loose.** uv defaults to the
+  newest interpreter it can find - on this machine that's currently
+  Python 3.14. Several current libraries (notably `altair==5.5.0`, and
+  any other lib using PEP 728's `TypedDict(closed=True)` syntax) are
+  still catching up to 3.14 and raise `TypeError: _TypedDictMeta.__new__()
+  got an unexpected keyword argument 'closed'` on import. Pin the upper
+  bound to keep uv on 3.13: `requires-python = ">=3.12,<3.14"`. Bump
+  the upper bound when the ecosystem catches up, not before.
+- **Don't `.to_pandas()` for altair - pass the polars DataFrame
+  directly.** altair 5.5+ accepts polars DataFrames natively via
+  narwhals: `alt.Chart(df).mark_bar()...` works as-is. The older
+  `alt.Chart(df.to_pandas())` pattern drags in *two* heavy deps that
+  are not in the standard set: `pyarrow` (for the arrow-to-pandas
+  bridge) AND `pandas` itself. Neither is pulled in transitively by
+  `polars` or `marimo`. Drop the `.to_pandas()` call and altair just
+  works on the polars DF. If some other API genuinely needs pandas,
+  add *both* `pyarrow==24.0.0` and a `pandas` pin to the deps - one
+  without the other still fails.
+
+**Validated header for the current dep set in this repo:**
+
+```python
+# /// script
+# requires-python = ">=3.12,<3.14"
+# dependencies = [
+#     "marimo",
+#     "polars==1.40.1",
+#     "pooch==1.9.0",
+#     "tqdm==4.67.3",
+#     # add only as needed:
+#     # "numpy==2.2.0",
+#     # "altair==5.5.0",      # pass polars DataFrames directly - skip pyarrow + pandas
+# ]
+# ///
+```
+
+Other catalog notebooks use this set; copying it gives you a known-good
+baseline.
+
+**Smoke-test the header before launching marimo.** A 5-second `uv run`
+catches dep mistakes against an ad-hoc venv, instead of paying the cost
+of a sandbox provision + a UI install prompt + a kernel restart. Run from
+the repo root, listing every dep in your header *and* exercising the
+runtime path your notebook actually takes:
+
+```bash
+uv run --python 3.13 \
+    --with marimo --with polars==1.40.1 --with pooch==1.9.0 \
+    --with altair==5.5.0 \
+    python3 -c "
+import polars as pl, altair as alt
+chart = alt.Chart(pl.DataFrame({'a':[1,2],'b':[3,4]})).mark_bar().encode(x='a:Q', y='b:Q')
+chart.to_dict()  # forces narwhals to actually walk the polars frame
+print('ok')"
+```
+
+A bare `import altair` only catches *static* import errors. Building a
+chart from a polars DF and calling `.to_dict()` exercises the narwhals
+conversion path and catches missing-bridge errors (e.g., a stray
+`.to_pandas()` somewhere that needs pandas + pyarrow). If it prints
+`ok`, the sandbox will too. If not, fix the header or the chart code
+*first*; only then launch marimo.
 
 ### 1. The setup cell - plain Python imports
 
@@ -186,13 +263,17 @@ def load_sgr() -> pl.DataFrame:
 2. **Read the catalog table above + the relevant source notebook.** Don't
    guess at helper signatures; the UI cells are worked examples.
 3. **Write the new notebook in `notebooks/nbNN_<short_description>.py`.**
-   Follow the imports / UI / caching patterns above.
-4. **Lint and check:**
+   Follow the imports / UI / caching patterns above. **Start from the
+   PEP 723 header in section 0** - it has been validated against the
+   current dep set; deviating costs time later.
+4. **Smoke-test the deps** with the `uv run --python 3.13 --with ...`
+   one-liner from section 0. Cheaper than a sandbox restart.
+5. **Lint and check:**
        pixi run ruff check notebooks/nbNN_*.py
        pixi run marimo check notebooks/nbNN_*.py
-5. **Open the new notebook** in the running kernel via marimo-pair (or
+6. **Open the new notebook** in the running kernel via marimo-pair (or
    ask the user to navigate to it).
-6. **Add a row to the catalog table** in this SKILL.md describing the new
+7. **Add a row to the catalog table** in this SKILL.md describing the new
    notebook's `@app.function` helpers. The catalog table is the contract
    for the *next* composition; if you don't update it, the next session
    has to re-read the file.
@@ -222,8 +303,13 @@ def load_sgr() -> pl.DataFrame:
   internal lazy-import shim), so re-running the cell raises the same
   error. Kill the `marimo edit --sandbox` server and relaunch on a fresh
   port; the new kernel imports cleanly because the header now has the
-  dep. Use `ctx.packages.add()` *prophylactically* (before the first
-  run) and you can skip the restart.
+  dep.
+
+  This is a *recovery* path, not a workflow. The proactive fix is to
+  start from the validated PEP 723 header and run the smoke-test
+  one-liner *before* launching marimo - see "0. The PEP 723 header"
+  above. A 5-second `uv run` is much cheaper than a sandbox provision +
+  install-prompt + kernel restart cycle.
 - **Snapshot `ctx.cells` before bulk run/mutate loops.** Iterating
   `for cid in ctx.cells: ctx.run_cell(cid)` raises `RuntimeError:
   dictionary changed size during iteration` because the reactive runtime
