@@ -28,8 +28,6 @@ npx skills add marimo-team/marimo-pair -g --agent claude-code -y
 uvx marimo edit --sandbox notebooks/nb01_orientation.py
 ```
 
-Nix users: `direnv allow` in this repo gets you uv, python, just, duckdb from the flake. No separate uv install needed.
-
 ## What this is for
 
 PROSPECT generates chemical-genetic interaction (CGI) profiles by screening compound libraries against pooled hypomorphic Mtb strains. Bond et al. 2025 introduced PCL (Perturbagen CLass) analysis: predict MOA for an unknown compound by comparing its CGI profile against a 437-compound annotated reference set. The method paper provides downloadable data (Figshare/Dryad).

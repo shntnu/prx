@@ -13,10 +13,6 @@ __marimo__/
 marimo/_static/
 marimo/_lsp/
 
-# direnv / Nix
-.direnv/
-.envrc.local
-
 # Editor / OS
 .DS_Store
 .idea/

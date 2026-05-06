@@ -28,9 +28,6 @@ Run `uv --version`. If it fails, tell the user to run:
 Then have them source their shell profile (`. ~/.zshrc`) or open a new
 terminal. Re-check `uv --version`.
 
-(Nix users with `direnv allow`-ed in this repo get `uv` from the flake;
-no separate install needed.)
-
 ### 2. Install the marimo-notebook and marimo-pair skills
 
 Both are upstream skills from `marimo-team`, distributed via
