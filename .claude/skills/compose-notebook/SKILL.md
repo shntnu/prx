@@ -49,6 +49,7 @@ exposes a stable helper.
 | `nb03_hypomorph_correlation` | `fetch_sgr_archive() -> Path`, `parse_gct(path) -> (matrix np.float32, row_meta pl.DataFrame, col_meta pl.DataFrame)`, `strain_correlation(matrix) -> np.ndarray`; globals `SGR_FILE_ID`, `SGR_ARCHIVE_HASH`, `SGR_GCT_NAME` | Pulls `sGR_for_pcls` (309 MB, 9,427 conditions x 340 strains) from the Bond 2025 Figshare bundle, parses the GCT v1.3 directly, computes the 340 x 340 strain x strain Pearson, and surfaces top neighbors per strain. The *strain-axis* view of the same matrix Bond et al. used for PCL clustering on the condition axis. |
 | `nb04_pretrained_baseline` | `fetch_clusters_archive() -> Path`, `per_compound_labels(clusters_tbl) -> pl.DataFrame`, `compound_cgi_profiles(clusters_tbl, sgr_matrix, sgr_col_meta, broad_ids) -> (np.ndarray, list[str])` (median per compound), `compound_condition_features(clusters_tbl, sgr_matrix, sgr_col_meta, broad_ids) -> (np.ndarray, np.ndarray)` (one row per (compound, dose, wave)), `smiles_to_morgan(smiles, radius, nbits) -> (np.ndarray, list[bool])`, `loocv_1nn_predictions(features, moas, metric) -> np.ndarray`, `loocv_per_condition_predictions(features, compound_ids, metric) -> (np.ndarray, np.ndarray)` (best-match across all-of-other-compound's conditions), `score_predictions(predictions, primary_moas, moa_sets) -> dict`, `same_moa_tanimoto_distribution(fps, primary_moas) -> pl.DataFrame`; globals `CLUSTERS_FILE_ID`, `CLUSTERS_ARCHIVE_HASH`, `MORGAN_RADIUS`, `MORGAN_NBITS` | Structure-only baseline vs two CGI baselines (per-dose best-match, and median-aggregated) for MOA classification on the Bond 2025 reference set, all under LOO 1-NN. Companion diagnostic: same-MOA vs cross-MOA Tanimoto distribution over Morgan FPs to surface within-MOA structural redundancy that biases the structure baseline upward. Adds rdkit + scikit-learn to the dep set. |
 | `nb05_collapse_diagnostic` | `pairwise_tanimoto(fps) -> np.ndarray`, `pairwise_pearson(profiles) -> np.ndarray`, `pair_table(broad_ids, primary_moas, tanimoto_sim, cgi_corr) -> pl.DataFrame` (upper-triangle long-format with same-MOA flag and Tanimoto bin); globals `TANIMOTO_DISTANT_CUTOFF`, `TANIMOTO_BIN_EDGES`, `TANIMOTO_BIN_LABELS` | Companion to nb04. For every pair of Bond reference compounds, contrasts pairwise Tanimoto over Morgan FPs against pairwise Pearson over median CGI profiles, stratified by same vs cross primary MOA. Headline: among chemistry-distant pairs (Tanimoto<0.30), is same-MOA CGI similarity above the cross-MOA background? If yes, CGI carries MOA info beyond chemistry; if no, the reference-set CGI signal collapses to chemistry. Reuses nb03 + nb04 helpers; no new deps. |
+| `nb06_cgi_shape_diversity` | `fetch_pcls_archive() -> Path`, `pcl_compound_table(pcls_long, clusters_tbl) -> pl.DataFrame` (one row per (pcl, condition, broad_id) triple), `rarefaction(triples, unit, sample_sizes, n_seeds, seed) -> pl.DataFrame`, `rarefaction_envelope(curve) -> pl.DataFrame`, `hill_numbers(counts) -> dict`; globals `PCLS_FILE_ID`, `PCLS_ARCHIVE_HASH`, `RAREFACTION_SEEDS` | Public-data floor for "how many CGI shapes does PROSPECT actually see". Joins Bond's authoritative PCL labels (1,140 PCLs across 5,847 condition-PCL pairs) to compound metadata, then runs rarefaction over PCL coverage at both condition and compound granularity, plus Hill numbers (N0, N1=exp Shannon, N2=inv Simpson) for effective-cluster counts under different evenness assumptions. Reuses nb02 (`parse_gmt`) + nb04 (`fetch_clusters_archive`); transitively inherits nb04's rdkit + scikit-learn deps even though nb06 itself uses neither (gotcha noted). |
 
 When the question isn't obviously answered by an existing helper, **read
 the catalog file itself** (not just this table) before inventing new code.
@@ -293,6 +294,16 @@ def load_sgr() -> pl.DataFrame:
 
 ## Gotchas
 
+- **`from nbNN_other import helper` inherits the whole module's deps.**
+  Importing a helper executes the module top-level, which runs the
+  `with app.setup:` block - that block's imports must all resolve in
+  the *consumer* notebook's sandbox. Practical effect: if you import
+  any helper from `nb04_pretrained_baseline`, your notebook's PEP 723
+  header needs `rdkit` and `scikit-learn` even if your code doesn't
+  touch either, because nb04's setup imports them at top level. Match
+  the deps exactly when importing across notebooks; smoke-test the
+  full transitive set with `uv run --no-project --with ...` before
+  launching marimo. (nb06 hit this on first launch.)
 - **Top-level variable names must be unique across cells.** Marimo's
   reactivity model needs a single definition per name in the global
   namespace; reusing common names like `chart`, `summary`, `df`, `result`
