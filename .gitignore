@@ -31,3 +31,6 @@ data/
 
 # Misc
 *.bak
+
+# remember plugin session-save logs
+.remember/
