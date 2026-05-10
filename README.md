@@ -6,14 +6,18 @@ The deliverable is a catalog of numbered marimo notebooks - each a runnable demo
 
 ## The catalog
 
-- `notebooks/nb01_orientation.py` - landing page, orientation, what's where
-- `notebooks/nb02_figshare_pull.py` - pull the Bond et al. 2025 Figshare bundle, parse MOA and PCL annotations, and build the reference-set spine
-- `notebooks/nb03_hypomorph_correlation.py` - load the sGR GCT matrix and inspect strain-strain correlation across the 340-dimensional CGI space
-- `notebooks/nb04_pretrained_baseline.py` - compare structure-only and CGI-profile 1-NN baselines for MOA classification on the Bond reference set
-- `notebooks/nb05_collapse_diagnostic.py` - test whether same-MOA CGI similarity survives after controlling for pairwise chemical similarity
-- `notebooks/nb06_cgi_shape_diversity.py` - quantify PCL coverage, rarefaction, and effective CGI-shape diversity in the public Bond data
+| Notebook | Role | Preview |
+|---|---|---|
+| [`nb01_orientation.py`](notebooks/nb01_orientation.py) | Landing page, orientation, what's where | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb01_orientation.py) |
+| [`nb02_figshare_pull.py`](notebooks/nb02_figshare_pull.py) | Pull Bond et al. 2025 Figshare bundle, parse MOA and PCL annotations, build the reference-set spine | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb02_figshare_pull.py) |
+| [`nb03_hypomorph_correlation.py`](notebooks/nb03_hypomorph_correlation.py) | Load sGR GCT matrix, inspect strain-strain correlation across the 340-d CGI space | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb03_hypomorph_correlation.py) |
+| [`nb04_pretrained_baseline.py`](notebooks/nb04_pretrained_baseline.py) | Structure-only vs CGI-profile 1-NN baselines for MOA classification on the Bond reference set | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb04_pretrained_baseline.py) |
+| [`nb05_collapse_diagnostic.py`](notebooks/nb05_collapse_diagnostic.py) | Test whether same-MOA CGI similarity survives after controlling for pairwise chemical similarity | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb05_collapse_diagnostic.py) |
+| [`nb06_cgi_shape_diversity.py`](notebooks/nb06_cgi_shape_diversity.py) | PCL coverage, rarefaction, and effective CGI-shape diversity in the public Bond data | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb06_cgi_shape_diversity.py) |
 
 The agent-facing catalog table in `.claude/skills/compose-notebook/SKILL.md` is the detailed contract: it lists reusable helpers, globals, dependency gotchas, and the current composition pattern.
+
+Related public catalogs of the same pattern: [jx](https://github.com/broadinstitute/jx) for JUMP Cell Painting, [fgx](https://github.com/broadinstitute/fgx) for FinnGenie human genetics, and [dmx](https://github.com/broadinstitute/dmx) for DepMap Breadbox.
 
 ## Getting started
 
