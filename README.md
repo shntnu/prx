@@ -7,9 +7,13 @@ The deliverable is a catalog of numbered marimo notebooks - each a runnable demo
 ## The catalog
 
 - `notebooks/nb01_orientation.py` - landing page, orientation, what's where
-- `notebooks/nb02_figshare_pull.py` - pull the Bond et al. 2025 Figshare bundle (sGR + PCL similarity tables) and look at the shapes
+- `notebooks/nb02_figshare_pull.py` - pull the Bond et al. 2025 Figshare bundle, parse MOA and PCL annotations, and build the reference-set spine
+- `notebooks/nb03_hypomorph_correlation.py` - load the sGR GCT matrix and inspect strain-strain correlation across the 340-dimensional CGI space
+- `notebooks/nb04_pretrained_baseline.py` - compare structure-only and CGI-profile 1-NN baselines for MOA classification on the Bond reference set
+- `notebooks/nb05_collapse_diagnostic.py` - test whether same-MOA CGI similarity survives after controlling for pairwise chemical similarity
+- `notebooks/nb06_cgi_shape_diversity.py` - quantify PCL coverage, rarefaction, and effective CGI-shape diversity in the public Bond data
 
-The catalog grows as new analyses are added.
+The agent-facing catalog table in `.claude/skills/compose-notebook/SKILL.md` is the detailed contract: it lists reusable helpers, globals, dependency gotchas, and the current composition pattern.
 
 ## Getting started
 

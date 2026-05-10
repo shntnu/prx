@@ -57,18 +57,17 @@ Helpers carry short docstrings; UI cells are worked examples.
 
 Concrete next-notebook candidates (Bond et al. 2025 Figshare bundle: <https://doi.org/10.6084/m9.figshare.28373561>):
 
-- `nb03_pcl_similarity.py` - pull the (large) `pcl_cluster_similarity_scores`
-  archive, lazy-scan via polars/pyarrow, expose `load_pcl_similarity()`,
-  `top_k_pcls(condition_id, k)`. This is where the MOA-prediction logic
-  starts.
-- `nb04_reference_set_join.py` - given Bond 2025 Supplementary Data 1 + 5
-  (compound -> annotated MOA), expose `load_reference_set()` and join it
-  to `nb02.clusters_tbl` + `nb02.moas_long` for sanity checks against the
-  paper's headline counts (437 compounds, 71 MOAs, 1,140 PCLs).
-- `nb05_loocv_replay.py` - replay the leave-one-out PCL prediction for a
-  single reference compound, against the published thresholds in
-  `by_pcl_high_confidence_similarity_score_thresholds_*`. Correctness
-  check before doing anything fancier.
+- `nb07_pcl_similarity.py` - pull the large `pcl_cluster_similarity_scores`
+  archive, lazy-scan it, expose `load_pcl_similarity()` and
+  `top_k_pcls(condition_id, k)`, then connect a query condition to its
+  nearest PCLs.
+- `nb08_loocv_replay.py` - replay one leave-one-out PCL prediction against
+  the published high-confidence similarity thresholds. This is the
+  correctness check before building broader MOA-calling notebooks.
+- `nb09_reference_moa_browser.py` - turn the reference-set spine from nb02
+  plus the labels and CGI baselines from nb04 into an interactive compound
+  browser: query compound -> annotated MOA -> nearest structure/CGI/PCL
+  neighbors.
 
 ## The composition pattern
 
