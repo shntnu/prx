@@ -374,8 +374,13 @@ def _(pairs):
 
 @app.cell(hide_code=True)
 def _(distant):
+    # Project to just the columns the density transform needs; otherwise the
+    # full ~100k-row pair frame (broad_a, broad_b, moa_a, moa_b strings + ...)
+    # gets embedded into the vega-lite spec and blows past molab's
+    # output_max_bytes ceiling.
+    _density_data = distant.select(["cgi_pearson", "same_moa"])
     _density = (
-        alt.Chart(distant)
+        alt.Chart(_density_data)
         .transform_density(
             "cgi_pearson",
             groupby=["same_moa"],
