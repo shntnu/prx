@@ -1,22 +1,17 @@
 # AGENTS.md - prx
 
-Project-specific guidance for agents working in this repository. This is the
-public, runnable catalog of marimo notebooks for PROSPECT chemical-genetics
-analysis. Planning, progress, and dated artifacts live in the sibling private
-repo `../prx-dev/`; cross-instance coordination lives in the primary
-[`jx`](https://github.com/broadinstitute/jx) repo.
+Project-specific guidance for agents working in this repository.
+This is the public, runnable catalog of marimo notebooks for PROSPECT chemical-genetics analysis.
+Planning, progress, and dated artifacts live in the sibling private repo `../prx-dev/`; cross-instance coordination lives in the primary [`jx`](https://github.com/broadinstitute/jx) repo.
 
-`README.md` is the human entry point. The skills under `.claude/skills/` are
-the operational entry points: `getting-started` for first-run setup and
-`compose-notebook` for adding a new analysis.
+`README.md` is the human entry point.
+The skills under `.claude/skills/` are the operational entry points: `getting-started` for first-run setup and `compose-notebook` for adding a new analysis.
 
 ## Validation Rule
 
-After composing or editing any notebook in `notebooks/`, launch it in a
-marimo sandbox kernel and run all cells before reporting the task complete.
-`ruff check` and `marimo check` only catch static problems; they do not catch
-wrong outputs, NaN-filled tables, broken altair encodings, empty plots, or
-silently-zero pivots. Show the user the live URL when working interactively.
+After composing or editing any notebook in `notebooks/`, launch it in a marimo sandbox kernel and run all cells before reporting the task complete.
+`ruff check` and `marimo check` only catch static problems; they do not catch wrong outputs, NaN-filled tables, broken altair encodings, empty plots, or silently-zero pivots.
+Show the user the live URL when working interactively.
 
 Minimal launch:
 
@@ -33,49 +28,42 @@ uvx ruff format notebooks/
 uvx marimo check notebooks/*.py
 ```
 
-**Then, last, refresh the molab session snapshot** for any notebook whose source
-changed in this task:
+**Then, last, refresh the molab session snapshot** for any notebook whose source changed in this task:
 
 ```bash
 env -u PYTHONPATH uvx marimo export session --sandbox notebooks/nbNN_*.py
 ```
 
-Order matters. Session snapshots store a `code_hash` per cell, and molab
-attaches the stored output only when the snapshot hash matches the source
-cell. Any later edit to the notebook source - including a `ruff format`
-whitespace pass - shifts every `code_hash` and silently strips outputs in
-the public molab preview. Always regenerate snapshots **after** the final
-formatter / source edit, and commit the regenerated `.json` files in the
-same change that touched the `.py` files.
+Order matters.
+Session snapshots store a `code_hash` per cell, and molab attaches the stored output only when the snapshot hash matches the source cell.
+Any later edit to the notebook source - including a `ruff format` whitespace pass - shifts every `code_hash` and silently strips outputs in the public molab preview.
+Always regenerate snapshots **after** the final formatter / source edit, and commit the regenerated `.json` files in the same change that touched the `.py` files.
 
 ## Architecture
 
-- Catalog over library. Helpers live as `@app.function` cells in numbered
-  notebooks. Later notebooks import from earlier notebooks by adding
-  `notebooks/` to `sys.path`.
-- Notebook deps are PEP 723 inline headers; `uv` provisions a per-notebook
-  sandbox venv.
-- `uv` is the runtime contract for users. Do not add Nix unless there is a
-  concrete reason.
-- Smoke-test PEP 723 headers with `uv run --no-project --python 3.13 --with
-  ...` before launching marimo, especially when importing helpers across
-  notebooks.
-- Raw data is never edited. Pulled artifacts go to `data/raw/` or
-  `data/external/<source>/`; transformations land in `data/interim/` or
-  `data/processed/<analysis-name>/`. Pin SHA-256 on every `pooch` fetch.
-- Do not add a Python package until repeated cross-notebook imports make the
-  notebook-as-library pattern painful.
+- Catalog over library.
+  Helpers live as `@app.function` cells in numbered notebooks.
+  Later notebooks import from earlier notebooks by adding `notebooks/` to `sys.path`.
+- Notebook deps are PEP 723 inline headers; `uv` provisions a per-notebook sandbox venv.
+- `uv` is the runtime contract for users.
+  Do not add Nix unless there is a concrete reason.
+- Smoke-test PEP 723 headers with `uv run --no-project --python 3.13 --with ...` before launching marimo, especially when importing helpers across notebooks.
+- Raw data is never edited.
+  Pulled artifacts go to `data/raw/` or `data/external/<source>/`; transformations land in `data/interim/` or `data/processed/<analysis-name>/`.
+  Pin SHA-256 on every `pooch` fetch.
+- Do not add a Python package until repeated cross-notebook imports make the notebook-as-library pattern painful.
 
 ## Conventions
 
 - Notebooks: `nbNN_<short_description>.py`, two-digit zero-padded.
-- Top-level variable names must be unique across cells. Use `_chart`,
-  `_summary`, and similar names for cell-private locals; rename values that
-  are consumed downstream.
-- Do not call `.to_pandas()` for altair; pass polars frames directly via
-  narwhals.
+- Top-level variable names must be unique across cells.
+  Use `_chart`, `_summary`, and similar names for cell-private locals; rename values that are consumed downstream.
+- Do not call `.to_pandas()` for altair; pass polars frames directly via narwhals.
 - Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`).
 - Use ASCII-only glyphs in code, comments, and docs.
+- Prose in `.md` files uses semantic line breaks: one sentence per line, no hard wrapping at a column count.
+  Markdown collapses single newlines inside a paragraph, so the rendered output is unchanged, but diffs stay local to the edited sentence instead of re-flowing every line below it.
+  Applies to `AGENTS.md`, `.claude/skills/**/SKILL.md`, and any other prose-heavy markdown we revise often.
 
 ## When the Question Fits the Catalog
 
@@ -88,5 +76,4 @@ Almost every PROSPECT request should compose existing helpers:
 - same-MOA CGI signal after chemistry control -> `nb05_collapse_diagnostic`
 - PCL rarefaction and CGI-shape diversity -> `nb06_cgi_shape_diversity`
 
-Read `.claude/skills/compose-notebook/SKILL.md` before writing new analysis
-code.
+Read `.claude/skills/compose-notebook/SKILL.md` before writing new analysis code.
