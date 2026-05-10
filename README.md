@@ -25,8 +25,9 @@ If you prefer to run setup by hand:
 # 1. Verify uv is installed
 uv --version  # or: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 2. Install marimo-pair (skill that gives Claude Code a tool into a live marimo kernel)
-npx skills add marimo-team/marimo-pair -g --agent claude-code -y
+# 2. Install marimo-pair for your current agent (codex or claude-code)
+AGENT=codex  # or: claude-code
+npx skills add marimo-team/marimo-pair -g --agent "$AGENT" -y
 
 # 3. Launch a notebook in --sandbox mode (PEP 723 deps auto-provisioned)
 uvx marimo edit --sandbox notebooks/nb01_orientation.py

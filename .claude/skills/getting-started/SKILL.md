@@ -33,10 +33,11 @@ terminal. Re-check `uv --version`.
 Both are upstream skills from `marimo-team`, distributed via
 [skills.sh](https://skills.sh). Neither is vendored in this repo
 (both are gitignored under `.claude/skills/`); install them globally
-for the user:
+for the user's current agent (`codex` or `claude-code`):
 
-    npx skills add marimo-team/skills -g --agent claude-code -y
-    npx skills add marimo-team/marimo-pair -g --agent claude-code -y
+    AGENT=codex  # or: claude-code
+    npx skills add marimo-team/skills -g --agent "$AGENT" -y
+    npx skills add marimo-team/marimo-pair -g --agent "$AGENT" -y
 
 The first installs `marimo-notebook` (authoring guidance for `@app.cell`
 patterns, reactivity, anywidget, etc.); the second installs `marimo-pair`
@@ -45,7 +46,7 @@ patterns, reactivity, anywidget, etc.); the second installs `marimo-pair`
 Skills installed globally via `-g` usually register live - you can
 proceed without restarting the session. If a later step reports the
 skill missing (e.g. marimo-pair's `scripts/execute-code.sh` not in
-the allowed tools), have the user restart Claude Code and re-run
+the allowed tools), have the user restart the agent and re-run
 `/getting-started`; it'll skip ahead since the prior steps are
 idempotent.
 

@@ -132,11 +132,10 @@ baseline.
 catches dep mistakes against an ad-hoc venv, instead of paying the cost
 of a sandbox provision + a UI install prompt + a kernel restart. Run from
 the prx repo root, listing every dep in your header *and* exercising the
-runtime path your notebook actually takes. Always pass `--no-project`:
-prx has no `pyproject.toml`, but if the agent's cwd is a sibling repo
-(e.g. `prx-dev`) that does have one, `uv` will try to install that
-sibling project as editable and the smoke-test fails before any of your
-deps are even resolved.
+runtime path your notebook actually takes. Always pass `--no-project` so
+`uv` treats the command as an ad-hoc dependency smoke test rather than a
+project install. This also protects you when the agent's cwd is a sibling
+repo with its own package metadata.
 
 ```bash
 cd /path/to/prx && uv run --no-project --python 3.13 \
@@ -276,8 +275,8 @@ def load_sgr() -> pl.DataFrame:
    one-liner from section 0. Cheaper than a sandbox restart.
 5. **Lint and check:**
        cd /path/to/prx
-       uvx ruff format --line-length 120 notebooks/nbNN_*.py
-       uvx ruff check --line-length 120 notebooks/nbNN_*.py
+       uvx ruff format notebooks/nbNN_*.py
+       uvx ruff check notebooks/nbNN_*.py
        uv run --no-project --python 3.13 --with marimo marimo check notebooks/nbNN_*.py
    `marimo check` exits 0 silently on success; non-zero with a list of
    `critical[multiple-definitions]` errors if you've reused a top-level
