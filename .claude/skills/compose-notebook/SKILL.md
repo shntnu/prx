@@ -369,3 +369,18 @@ def load_sgr() -> pl.DataFrame:
   while marimo widgets carry their renderer with them. If a chart shows
   up in the live editor but not in molab, the first thing to try is the
   widget wrap.
+- **Project the DataFrame to the columns the chart actually encodes
+  before passing it to altair.** vega-lite embeds the entire input
+  frame inline in the chart spec, including columns you never reference
+  in `encode(...)` or in a `transform_density` / `transform_filter`.
+  A 100k-row pair frame with several long string columns (e.g. the
+  `pairs` table with `broad_a` / `broad_b` / `moa_a` / `moa_b`) easily
+  blows past molab's `output_max_bytes` ceiling (default ~10 MB) and
+  the cell renders as a "Your output is too large" callout instead of
+  a chart. The live editor's limit is higher, so the same notebook
+  works locally and fails in molab. Fix: `df.select(["cgi_pearson",
+  "same_moa"])` (or whatever the encoding uses) before `alt.Chart(df)`.
+  The chart is mathematically identical and the embedded spec shrinks
+  by an order of magnitude. Same principle for tooltips: a
+  `tooltip=[...]` list on a many-row chart is dead weight in a static
+  preview (no hover) and can be the difference between fitting and not.
