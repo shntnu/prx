@@ -1,0 +1,139 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.23.5",
+    "script_metadata_hash": "da873d5d09e69dbc37de3cbfd95dec06"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "ac7fb3a83911efc5c651f6d874cb6e72",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"nb01-orientation\">nb01 - orientation</h1>\n<span class=\"paragraph\">Landing notebook for <code>prospect</code>. Sketches the working questions, points at the\nfoundational papers and public data, and names the first concrete things worth\npoking at. Later notebooks (<code>nb02_*</code>, <code>nb03_*</code>, ...) import from here as the\ncatalog grows.</span>\n<span class=\"paragraph\">See <code>references/papers.md</code> for the annotated bibliography this notebook is\nseeded from, and <code>CLAUDE.md</code> for the architectural choice (jx-style notebook\ncatalog, no library / no snakemake) that frames how to extend it.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "28947902d1cdf524258b125f347624ca",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"what-prospect-is\">What PROSPECT is</h2>\n<span class=\"paragraph\">PROSPECT is the Hung lab's chemical-genetic interaction (CGI) profiling\nplatform for <em>Mycobacterium tuberculosis</em>. The setup:</span>\n<ul>\n<li>~500 barcoded TB mutants, each hypomorphic for one essential target\n  (SspB-degron knockdown of ~474 essential genes)</li>\n<li>pooled and screened against 10K-100K compound libraries</li>\n<li>amplicon sequencing reads out per-mutant abundance, yielding a CGI profile\n  (compound x mutant) for each compound</li>\n<li>a complementary CRISPRi panel paired with expression profiles extends the\n  same idea to a transcriptional readout</li>\n</ul>\n<span class=\"paragraph\">Two things fall out of those profiles:</span>\n<ol>\n<li><strong>Mutant-selective hits</strong> - molecules active against specific essential-\n   target knockdowns but not wild type. Starting points for new TB chemo.</li>\n<li><strong>MOA inference from the primary screen</strong> - a compound's CGI profile,\n   compared against an annotated reference set, suggests target / pathway\n   directly from screening data (Bond et al. 2025; the \"PCL\" approach).</li>\n</ol></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "b3d70eac4da1f2966b8b91146ee6490a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"working-questions\">Working questions</h2>\n<span class=\"paragraph\">Three threads to pull on. Each can be opened as its own <code>nb0X_*</code> notebook\nlater.</span>\n<ol>\n<li><strong>Mutant-selective hits.</strong> Given a compound's CGI profile, when does\n   \"selective on mutant X\" actually mean target engagement vs. a strain-\n   specific quirk? What does the false-positive rate look like across the\n   full pool, and how does it change with screening concentration?</li>\n<li><strong>MOA from primary screen (PCL).</strong> Reproduce the Bond et al. PCL workflow\n   on the public 437-compound reference set: build CGI profiles, compute\n   sGR + cluster membership, run leave-one-out, sanity check the 70%/75%\n   sens/prec headline. Then ask where it fails.</li>\n<li><strong>CRISPRi + expression as a parallel readout.</strong> A CRISPRi knockdown +\n   expression panel is the natural complement to CGI profiles. We do not\n   have a clean primary reference for it yet (see <code>references/papers.md</code>\n   TODO); confirm with collaborators before building on it.</li>\n</ol></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "93925ea7f4fa289eb1c66d40187c6285",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"foundational-papers\">Foundational papers</h2>\n<span class=\"paragraph\">Full bibliography in <code>references/papers.md</code>. Three seed papers anchor the\nproject:</span>\n<table>\n<thead>\n<tr>\n<th>Tag</th>\n<th>Citation</th>\n<th>Why</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Johnson 2019</td>\n<td><em>Large-scale chemical-genetics yields new M. tuberculosis inhibitor classes</em>, Nature 571, 72-78</td>\n<td>Founding PROSPECT paper. Read first - everything else assumes its setup.</td>\n</tr>\n<tr>\n<td>Bond 2025</td>\n<td><em>Reference-based chemical-genetic interaction profiling...</em>, Nat Commun</td>\n<td>The method paper. PCL analysis, 437-compound reference set, leave-one-out benchmarks.</td>\n</tr>\n<tr>\n<td>Scalia 2025</td>\n<td><em>Deep-learning-based virtual screening of antibacterial compounds</em>, Nat Biotechnol</td>\n<td>GNEprop trained on a 2M-compound <em>E. coli</em> phenotypic screen, virtual-screened 1.4B compounds. The modeling counterpart to PROSPECT.</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Use the <code>/paperclip</code> skill (bioRxiv / medRxiv / PMC) for paper content. The\nPDFs in <code>references/</code> are gitignored and along for reference, not for\nparsing. Preprint doc_ids are listed in <code>references/papers.md</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "eb1aab890e6d4243a49f4e51815a250d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"public-data-and-code\">Public data and code</h2>\n<span class=\"paragraph\">From the Bond et al. 2025 paper - these are the concrete artifacts to\ndownload / clone / read first.</span>\n<span class=\"paragraph\"><strong>Data</strong></span>\n<ul>\n<li>Figshare (sGR + PCL similarity + PCL confidence + cluster membership for\n  reference + GSK + BRD4310 sets):\n  <a href=\"https://doi.org/10.6084/m9.figshare.28373561\" rel=\"noopener noreferrer\" target=\"_blank\">https://doi.org/10.6084/m9.figshare.28373561</a></li>\n<li>Dryad (RNA-seq datasets):\n  <a href=\"https://doi.org/10.5061/dryad.qz612jmrg\" rel=\"noopener noreferrer\" target=\"_blank\">https://doi.org/10.5061/dryad.qz612jmrg</a></li>\n<li>Reference-set MOA annotations: Supplementary Data 1 and 5 of Bond 2025</li>\n</ul>\n<span class=\"paragraph\"><strong>Code</strong></span>\n<ul>\n<li><code>concensusGLM</code> (R, GLM-based hit-calling):\n  <a href=\"https://github.com/broadinstitute/concensusGLM\" rel=\"noopener noreferrer\" target=\"_blank\">https://github.com/broadinstitute/concensusGLM</a></li>\n<li><code>cmapM</code> (Matlab, Connectivity Map utilities):\n  <a href=\"https://github.com/cmap/cmapM\" rel=\"noopener noreferrer\" target=\"_blank\">https://github.com/cmap/cmapM</a></li>\n<li><code>cmapR</code> (Bioconductor, Connectivity Map utilities):\n  <a href=\"https://github.com/cmap/cmapR\" rel=\"noopener noreferrer\" target=\"_blank\">https://github.com/cmap/cmapR</a></li>\n<li>PCL analysis code: Code Ocean / GitHub link in the published Bond 2025</li>\n</ul>\n<span class=\"paragraph\"><strong>Viewers</strong></span>\n<ul>\n<li>Morpheus heatmap viewer:\n  <a href=\"https://software.broadinstitute.org/morpheus\" rel=\"noopener noreferrer\" target=\"_blank\">https://software.broadinstitute.org/morpheus</a></li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "a6d157c294f413d997c819ac6bcca200",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"first-concrete-things-to-poke-at\">First concrete things to poke at</h2>\n<span class=\"paragraph\">Ordered roughly by \"easiest first / least dependency on collaborators\":</span>\n<ol>\n<li><strong>Pull the Figshare bundle</strong> with <code>pooch</code>, peek at the table shapes, get a\n   feel for what one row of an sGR / PCL-similarity table looks like.\n   (<code>nb02_*</code> candidate.)</li>\n<li><strong>Read the Bond 2025 reference set</strong> (Supplementary Data 1 + 5) and build\n   a small polars DataFrame of compound -&gt; annotated MOA. This is the spine\n   everything else hangs off.</li>\n<li><strong>Reproduce one PCL leave-one-out call</strong> for a single reference compound\n   end-to-end, against the published cluster membership. Useful as a\n   correctness check before doing anything fancier.</li>\n<li><strong>Pull one RNA-seq dataset from Dryad</strong> to scope out the CRISPRi /\n   expression side - just to know format and size. Don't build on it until\n   we have a primary reference.</li>\n</ol>\n<span class=\"paragraph\">Open question to bring to the next collaborator sync: which slice of this\nis most useful right now?</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "9dd0d4315cc49c99d765fba8d058f378",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"catalog-conventions-for-nb02_-and-beyond\">Catalog conventions (for <code>nb02_*</code> and beyond)</h2>\n<ul>\n<li>Notebooks are numbered: <code>nb&lt;NN&gt;_&lt;short_description&gt;.py</code>, two-digit zero-\n  padded. Later notebooks import from earlier ones - the catalog is a\n  cumulative DAG, not a flat collection.</li>\n<li>Helpers stay close to API primitives (<code>polars</code>, <code>duckdb</code>, <code>pooch</code>) inside\n  notebooks. Don't extract a <code>src/prospect/</code> module - that scaffolding is\n  dormant by design (see <code>CLAUDE.md</code>).</li>\n<li>Raw data is never edited. Pulled artifacts go to <code>data/raw/</code> or\n  <code>data/external/</code>; transformations land in <code>data/interim/</code> or\n  <code>data/processed/&lt;analysis-name&gt;/</code>.</li>\n<li>The cell below establishes <code>PROJ_ROOT</code> and the canonical data subdirs;\n  later notebooks should import these rather than re-deriving paths.</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "76dc1ec4398f99df416f4633eaed4ea1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "e84f0f010d267f29b6c22533fdded6db",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Resolved paths for this checkout:</span>\n<ul>\n<li><code>PROJ_ROOT</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx</code></li>\n<li><code>DATA_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/data</code></li>\n<li><code>RAW_DATA_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/data/raw</code></li>\n<li><code>EXTERNAL_DATA_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/data/external</code></li>\n<li><code>INTERIM_DATA_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/data/interim</code></li>\n<li><code>PROCESSED_DATA_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/data/processed</code></li>\n<li><code>REFERENCES_DIR</code> = <code>/Users/shsingh/Documents/GitHub/jump_voa/prx/references</code></li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

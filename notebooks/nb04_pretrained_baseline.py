@@ -468,7 +468,16 @@ def score_predictions(
 
 
 @app.cell
-def _(aligned_k, cgi_k, clusters_tbl, fps_k, moa_sets_k, primary_moa_k, sgr_col_meta, sgr_matrix):
+def _(
+    aligned_k,
+    cgi_k,
+    clusters_tbl,
+    fps_k,
+    moa_sets_k,
+    primary_moa_k,
+    sgr_col_meta,
+    sgr_matrix,
+):
     aligned_broad_ids = aligned_k["broad_id"].cast(pl.String).to_list()
     compound_to_primary = dict(zip(aligned_broad_ids, aligned_k["primary_moa"].to_list(), strict=True))
 
@@ -491,8 +500,6 @@ def _(aligned_k, cgi_k, clusters_tbl, fps_k, moa_sets_k, primary_moa_k, sgr_col_
     score_cgi_perdose = score_predictions(pred_cgi_perdose, primary_moa_k, moa_sets_k)
     score_cgi_median = score_predictions(pred_cgi_median, primary_moa_k, moa_sets_k)
     return (
-        cond_features,
-        pred_cgi_median,
         pred_cgi_perdose,
         pred_struct,
         score_cgi_median,
