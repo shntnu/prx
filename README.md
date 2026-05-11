@@ -1,9 +1,16 @@
-# prx -- PROSPECT eXplore
+# prx — PROSPECT eXplore
 
 A marimo notebook catalog for chemical-genetics analysis on [PROSPECT](https://doi.org/10.1038/s41586-019-1315-z) data, built around [Bond et al. 2025](https://doi.org/10.1038/s41467-025-64662-x): the reference-based MOA inference method that turns PROSPECT primary-screen data into mechanism-of-action assignments.
 
 The deliverable is a catalog of numbered marimo notebooks - each a runnable demonstration of a real PROSPECT use case, and a source of pure functions other notebooks can import.
 An AI agent ([Claude Code](https://code.claude.com/docs) + [marimo-pair](https://github.com/marimo-team/marimo-pair)) composes new analyses against the catalog in a live kernel.
+
+PROSPECT generates chemical-genetic interaction (CGI) profiles by screening compound libraries against pooled hypomorphic Mtb strains.
+Bond et al. 2025 introduced PCL (Perturbagen CLass) analysis: predict MOA for an unknown compound by comparing its CGI profile against a 437-compound annotated reference set.
+The method paper provides downloadable data (Figshare/Dryad).
+
+prx is where you go to actually do that analysis: pull the data, look at it, find similar compounds, infer MOAs, generate figures.
+The catalog covers the building blocks; the agent composes new vignettes from them.
 
 ## The catalog
 
@@ -40,15 +47,6 @@ npx skills add marimo-team/marimo-pair -g --agent "$AGENT" -y
 uvx marimo edit --sandbox notebooks/nb01_orientation.py
 ```
 
-## What this is for
-
-PROSPECT generates chemical-genetic interaction (CGI) profiles by screening compound libraries against pooled hypomorphic Mtb strains.
-Bond et al. 2025 introduced PCL (Perturbagen CLass) analysis: predict MOA for an unknown compound by comparing its CGI profile against a 437-compound annotated reference set.
-The method paper provides downloadable data (Figshare/Dryad).
-
-prx is where you go to actually do that analysis: pull the data, look at it, find similar compounds, infer MOAs, generate figures.
-The catalog covers the building blocks; the agent composes new vignettes from them.
-
 ## Companion repo
 
 prx (this) is the public deliverable.
@@ -57,4 +55,4 @@ The split mirrors [jx](https://github.com/broadinstitute/jx) / [jx-dev](https://
 
 ## License
 
-BSD 3-Clause - see [LICENSE](LICENSE).
+BSD 3-Clause — see [LICENSE](LICENSE).
