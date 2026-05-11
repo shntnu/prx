@@ -14,6 +14,8 @@ The catalog covers the building blocks; the agent composes new vignettes from th
 
 ## The catalog
 
+Each notebook ships with a committed session snapshot under [`notebooks/__marimo__/session/`](notebooks/__marimo__/session/) so the molab preview renders cell outputs without re-executing.
+
 | Notebook | Role | Preview |
 |---|---|---|
 | [`nb01_orientation.py`](notebooks/nb01_orientation.py) | Landing page, orientation, what's where | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb01_orientation.py) |
@@ -30,28 +32,16 @@ Related public catalogs of the same pattern: [jx](https://github.com/broadinstit
 ## Getting started
 
 Clone this repo, open Claude Code inside it, and ask: *help me get started*.
-The `getting-started` skill (at `.claude/skills/getting-started/SKILL.md`) installs prereqs ([uv](https://docs.astral.sh/uv/) and the [marimo-pair](https://github.com/marimo-team/marimo-pair) skill), launches `nb01_orientation` in a live marimo kernel, and hands off to the `compose-notebook` skill for the actual analysis.
-Claude Code auto-loads `.claude/skills/` from the working directory.
+The `getting-started` skill installs prereqs ([uv](https://docs.astral.sh/uv/) and the [marimo-pair](https://github.com/marimo-team/marimo-pair) skill), launches `nb01_orientation` in a live marimo kernel, and hands off to the `compose-notebook` skill for the actual analysis.
 
 If you prefer to run setup by hand:
 
 ```bash
-# 1. Verify uv is installed
 uv --version  # or: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 2. Install marimo-pair for your current agent (codex or claude-code)
 AGENT=codex  # or: claude-code
 npx skills add marimo-team/marimo-pair -g --agent "$AGENT" -y
-
-# 3. Launch a notebook in --sandbox mode (PEP 723 deps auto-provisioned)
 uvx marimo edit --sandbox notebooks/nb01_orientation.py
 ```
-
-## Companion repo
-
-prx (this) is the public deliverable.
-A companion private repo (`prx-dev`) holds the planning, progress log, learning log, dated artifacts, and dev-only scaffolding.
-The split mirrors [jx](https://github.com/broadinstitute/jx) / [jx-dev](https://github.com/broadinstitute/jx-dev) - public catalog, private working repo.
 
 ## License
 
