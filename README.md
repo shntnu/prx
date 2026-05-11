@@ -21,7 +21,7 @@ Each notebook ships with a committed session snapshot under [`notebooks/__marimo
 | [`nb05_collapse_diagnostic.py`](notebooks/nb05_collapse_diagnostic.py) | Test whether same-MOA CGI similarity survives after controlling for pairwise chemical similarity | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb05_collapse_diagnostic.py) |
 | [`nb06_cgi_shape_diversity.py`](notebooks/nb06_cgi_shape_diversity.py) | PCL coverage, rarefaction, and effective CGI-shape diversity in the public Bond data | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/broadinstitute/prx/blob/main/notebooks/nb06_cgi_shape_diversity.py) |
 
-The agent-facing catalog table in `.claude/skills/compose-notebook/SKILL.md` is the detailed contract: it lists reusable helpers, globals, dependency gotchas, and the current composition pattern.
+The agent-facing catalog table in `.claude/skills/compose-notebook/SKILL.md` is the detailed contract: it lists reusable helpers, import patterns, and current gotchas.
 
 Related public catalogs of the same pattern: [jx](https://github.com/broadinstitute/jx) for JUMP Cell Painting, [fgx](https://github.com/broadinstitute/fgx) for FinnGenie human genetics, and [dmx](https://github.com/broadinstitute/dmx) for DepMap Breadbox.
 
@@ -34,7 +34,7 @@ If you prefer to run setup by hand:
 
 ```bash
 uv --version  # or: curl -LsSf https://astral.sh/uv/install.sh | sh
-AGENT=codex  # or: claude-code
+AGENT=claude-code  # or: codex
 npx skills add marimo-team/marimo-pair -g --agent "$AGENT" -y
 uvx marimo edit --sandbox notebooks/nb01_orientation.py
 ```
